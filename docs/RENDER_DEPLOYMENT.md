@@ -90,9 +90,12 @@ You can host AsyncFlow completely FREE using:
    Runtime: Docker
    ```
 
-4. **Dockerfile Path:**
+4. **Docker Configuration:**
    ```
-   apps/api/Dockerfile
+   Dockerfile Path: apps/api/Dockerfile
+   Docker Context: .
+   Build Command: (leave blank - Docker handles build)
+   Start Command: (leave blank - Dockerfile CMD handles start)
    ```
 
 5. **Instance Type:** Select **Free** (512MB RAM, auto-sleep after 15 min)
@@ -161,9 +164,12 @@ You can host AsyncFlow completely FREE using:
    Runtime: Docker
    ```
 
-4. **Dockerfile Path:**
+4. **Docker Configuration:**
    ```
-   apps/worker/Dockerfile
+   Dockerfile Path: apps/worker/Dockerfile
+   Docker Context: .
+   Build Command: (leave blank - Docker handles build)
+   Start Command: (leave blank - Dockerfile CMD handles start)
    ```
 
 5. **Instance Type:** Select **Free**

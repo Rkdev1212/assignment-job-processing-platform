@@ -65,6 +65,32 @@ WORKER_GRACEFUL_SHUTDOWN_TIMEOUT=30000
 
 ## 📋 How to Add in Render:
 
+### ⚙️ Service Configuration First
+
+**Before adding environment variables, configure your service:**
+
+#### API Service Settings:
+- **Name:** asyncflow-api
+- **Environment:** Docker
+- **Dockerfile Path:** `apps/api/Dockerfile`
+- **Docker Context:** `.` (root directory)
+- **Build Command:** (leave blank - Docker handles it)
+- **Start Command:** (leave blank - Dockerfile CMD handles it)
+
+#### Worker Service Settings:
+- **Name:** asyncflow-worker
+- **Environment:** Docker
+- **Dockerfile Path:** `apps/worker/Dockerfile`
+- **Docker Context:** `.` (root directory)
+- **Build Command:** (leave blank - Docker handles it)
+- **Start Command:** (leave blank - Dockerfile CMD handles it)
+
+⚠️ **Don't use `yarn install; yarn build` for Docker deployments!**
+
+---
+
+### Adding Environment Variables:
+
 ### Method 1: Add from .env (Fastest)
 
 1. Go to your service in Render
