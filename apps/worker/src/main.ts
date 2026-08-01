@@ -54,7 +54,13 @@ class WorkerApp {
 
       logger.info('Using retry strategy', { strategy: retryStrategy.getName() });
 
-      // Create and start processor
+      // Start HTTP health server FIRST so Render detects the port immediately
+      this.startHealthServer(config.app.port, logger);
+
+      // Setup graceful shutdown
+      this.setupGracefulShutdown(logger, prisma);
+
+      // Create and start processor (non-blocking)
       this.processor = new JobProcessor(
         config,
         jobRepository,
@@ -67,14 +73,7 @@ class WorkerApp {
       await this.processor.start();
       this.isReady = true;
 
-      // Start HTTP health server so Render (Web Service) keeps the process alive
-      this.startHealthServer(config.app.port, logger);
-
-      // Setup graceful shutdown
-      this.setupGracefulShutdown(logger, prisma);
-
-      logger.info('Worker is ready to process jobs');
-    } catch (error) {
+      logger.info('Worker is ready to process jobs');    } catch (error) {
       logger.error('Failed to start worker', error instanceof Error ? error : undefined);
       process.exit(1);
     }

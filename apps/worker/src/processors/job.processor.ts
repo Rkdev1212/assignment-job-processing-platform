@@ -42,7 +42,10 @@ export class JobProcessor {
    */
   async start(): Promise<void> {
     this.logger.info('Starting worker', { workerId: this.workerId });
-    await this.worker.run();
+    // Don't await — worker.run() is an infinite loop, let it run in background
+    this.worker.run().catch((err: Error) => {
+      this.logger.error('Worker run error', err, { workerId: this.workerId });
+    });
     this.logger.info('Worker started successfully', { workerId: this.workerId });
   }
 
