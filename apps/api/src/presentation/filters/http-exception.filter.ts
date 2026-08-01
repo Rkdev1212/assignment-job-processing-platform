@@ -4,9 +4,11 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ILogger } from '@asyncflow/contracts';
+import { LOGGER_TOKEN } from '../../app.module';
 
 /**
  * Global HTTP Exception Filter
@@ -15,7 +17,7 @@ import { ILogger } from '@asyncflow/contracts';
  */
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  constructor(private readonly logger: ILogger) {}
+  constructor(@Inject(LOGGER_TOKEN) private readonly logger: ILogger) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();

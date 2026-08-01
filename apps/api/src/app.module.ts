@@ -44,22 +44,16 @@ export const JOB_REPOSITORY_TOKEN = 'IJobRepository';
 @Module({
   imports: [
     PassportModule,
-    JwtModule.registerAsync({
-      useFactory: (config: ConfigService) => ({
-        secret: config.jwt.secret,
-        signOptions: { expiresIn: config.jwt.expiration },
-      }),
-      inject: [ConfigService],
+    JwtModule.register({
+      secret: ConfigService.getInstance().jwt.secret,
+      signOptions: { expiresIn: ConfigService.getInstance().jwt.expiration },
     }),
-    ThrottlerModule.forRootAsync({
-      useFactory: (config: ConfigService) => [
-        {
-          ttl: config.rateLimit.ttl * 1000,
-          limit: config.rateLimit.max,
-        },
-      ],
-      inject: [ConfigService],
-    }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: ConfigService.getInstance().rateLimit.ttl * 1000,
+        limit: ConfigService.getInstance().rateLimit.max,
+      },
+    ]),
   ],
   controllers: [
     JobController,
@@ -122,7 +116,8 @@ export const JOB_REPOSITORY_TOKEN = 'IJobRepository';
     // Global Exception Filter
     {
       provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
+      useFactory: (logger: any) => new HttpExceptionFilter(logger),
+      inject: [LOGGER_TOKEN],
     },
   ],
 })

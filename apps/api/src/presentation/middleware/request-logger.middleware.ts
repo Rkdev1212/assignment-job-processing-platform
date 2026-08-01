@@ -1,6 +1,7 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware, Inject } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { ILogger } from '@asyncflow/contracts';
+import { LOGGER_TOKEN } from '../../app.module';
 
 /**
  * Request Logger Middleware
@@ -9,7 +10,7 @@ import { ILogger } from '@asyncflow/contracts';
  */
 @Injectable()
 export class RequestLoggerMiddleware implements NestMiddleware {
-  constructor(private readonly logger: ILogger) {}
+  constructor(@Inject(LOGGER_TOKEN) private readonly logger: ILogger) {}
 
   use(req: Request, res: Response, next: NextFunction) {
     const startTime = Date.now();

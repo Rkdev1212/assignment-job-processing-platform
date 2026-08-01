@@ -1,8 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PrismaService } from '@asyncflow/database';
 import { IQueuePublisher } from '@asyncflow/contracts';
 import { Redis } from 'ioredis';
+import { QUEUE_PUBLISHER_TOKEN } from '../../app.module';
 
 /**
  * Health Controller
@@ -14,8 +15,8 @@ import { Redis } from 'ioredis';
 export class HealthController {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly queuePublisher: IQueuePublisher,
-    private readonly redis: Redis,
+    @Inject(QUEUE_PUBLISHER_TOKEN) private readonly queuePublisher: IQueuePublisher,
+    @Inject('Redis') private readonly redis: Redis,
   ) {}
 
   @Get()

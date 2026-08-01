@@ -1,9 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { IJobRepository, IQueuePublisher, ILogger, IMetricsCollector } from '@asyncflow/contracts';
 import { Job, JobStatus } from '@asyncflow/shared';
 import { IdGenerator } from '@asyncflow/utils';
 import { CreateJobDto } from '../../presentation/dtos/create-job.dto';
 import { JobQueryDto } from '../../presentation/dtos/job-query.dto';
+import {
+  LOGGER_TOKEN,
+  METRICS_COLLECTOR_TOKEN,
+  QUEUE_PUBLISHER_TOKEN,
+  JOB_REPOSITORY_TOKEN,
+} from '../../app.module';
 
 /**
  * Job Service
@@ -14,10 +20,10 @@ import { JobQueryDto } from '../../presentation/dtos/job-query.dto';
 @Injectable()
 export class JobService {
   constructor(
-    private readonly jobRepository: IJobRepository,
-    private readonly queuePublisher: IQueuePublisher,
-    private readonly logger: ILogger,
-    private readonly metrics: IMetricsCollector,
+    @Inject(JOB_REPOSITORY_TOKEN) private readonly jobRepository: IJobRepository,
+    @Inject(QUEUE_PUBLISHER_TOKEN) private readonly queuePublisher: IQueuePublisher,
+    @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
+    @Inject(METRICS_COLLECTOR_TOKEN) private readonly metrics: IMetricsCollector,
   ) {}
 
   /**

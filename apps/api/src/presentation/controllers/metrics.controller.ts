@@ -1,6 +1,7 @@
-import { Controller, Get, Header } from '@nestjs/common';
+import { Controller, Get, Header, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { IMetricsCollector } from '@asyncflow/contracts';
+import { METRICS_COLLECTOR_TOKEN } from '../../app.module';
 
 /**
  * Metrics Controller
@@ -10,7 +11,7 @@ import { IMetricsCollector } from '@asyncflow/contracts';
 @ApiTags('Metrics')
 @Controller('metrics')
 export class MetricsController {
-  constructor(private readonly metrics: IMetricsCollector) {}
+  constructor(@Inject(METRICS_COLLECTOR_TOKEN) private readonly metrics: IMetricsCollector) {}
 
   @Get()
   @Header('Content-Type', 'text/plain')
