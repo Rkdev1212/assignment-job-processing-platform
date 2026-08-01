@@ -31,7 +31,9 @@ class WorkerApp {
       logger.info('Database connected');
 
       // Initialize Redis
-      const redis = RedisFactory.create(config.redis);
+      const redisConfig = config.redis;
+      logger.info('Connecting to Redis', { host: redisConfig.host, port: redisConfig.port, tls: redisConfig.tls });
+      const redis = RedisFactory.create(redisConfig);
       await redis.ping();
       logger.info('Redis connected');
 
