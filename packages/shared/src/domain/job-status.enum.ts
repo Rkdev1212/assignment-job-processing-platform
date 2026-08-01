@@ -25,7 +25,7 @@ export const VALID_TRANSITIONS: Record<JobStatus, JobStatus[]> = {
     JobStatus.RETRYING,
     JobStatus.CANCELLED,
   ],
-  [JobStatus.RETRYING]: [JobStatus.PROCESSING, JobStatus.FAILED, JobStatus.CANCELLED],
+  [JobStatus.RETRYING]: [JobStatus.PROCESSING, JobStatus.FAILED, JobStatus.CANCELLED, JobStatus.DEAD_LETTER],
   [JobStatus.FAILED]: [JobStatus.DEAD_LETTER, JobStatus.RETRYING],
   [JobStatus.COMPLETED]: [],
   [JobStatus.DEAD_LETTER]: [],
