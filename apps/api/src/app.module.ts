@@ -23,6 +23,7 @@ import { JobController } from './presentation/controllers/job.controller';
 import { QueueController } from './presentation/controllers/queue.controller';
 import { MetricsController } from './presentation/controllers/metrics.controller';
 import { HealthController } from './presentation/controllers/health.controller';
+import { AuthController } from './presentation/controllers/auth.controller';
 
 // Middleware & Filters
 import { CorrelationIdMiddleware } from './presentation/middleware/correlation-id.middleware';
@@ -52,6 +53,7 @@ import { LOGGER_TOKEN, METRICS_COLLECTOR_TOKEN, QUEUE_PUBLISHER_TOKEN, JOB_REPOS
     ]),
   ],
   controllers: [
+    AuthController,
     JobController,
     QueueController,
     MetricsController,
