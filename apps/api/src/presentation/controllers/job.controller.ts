@@ -73,38 +73,6 @@ export class JobController {
     };
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get job by ID' })
-  @ApiParam({ name: 'id', description: 'Job ID' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Job retrieved successfully',
-    type: JobResponseDto,
-  })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Job not found' })
-  async getJob(@Param('id') id: string): Promise<JobResponseDto> {
-    const job = await this.jobService.getJobById(id);
-    return job.toObject() as JobResponseDto;
-  }
-
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Cancel a job' })
-  @ApiParam({ name: 'id', description: 'Job ID' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Job cancelled successfully',
-    type: JobResponseDto,
-  })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Job not found' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  async cancelJob(@Param('id') id: string): Promise<JobResponseDto> {
-    const job = await this.jobService.cancelJob(id);
-    return job.toObject() as JobResponseDto;
-  }
-
   @Get('dead-letter')
   @ApiOperation({ summary: 'List dead letter jobs (failed after max retries)' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
@@ -123,4 +91,17 @@ export class JobController {
       totalPages: result.totalPages,
     };
   }
-}
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get job by ID' })
+  @ApiParam({ name: 'id', description: 'Job ID' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Job retrieved successfully',
+    type: JobResponseDto,
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Job not found' })
+  async getJob(@Param('id') id: string): Promise<JobResponseDto> {
+    const job = await this.jobService.getJobById(id);
+    return job.toObject() as JobResponseDto;
+  }

@@ -33,20 +33,18 @@ export class CreateJobDto {
   payload!: Record<string, any>;
 
   @ApiPropertyOptional({
-    description: 'Priority: high | normal | low, or numeric 0-10 (higher = more priority)',
+    description: 'Priority: "high" | "normal" | "low" or numeric 0–10',
     example: 'normal',
     default: 'normal',
   })
   @IsOptional()
   @Transform(({ value }) => {
-    if (typeof value === 'string' && PRIORITY_MAP[value.toLowerCase()] !== undefined) {
-      return PRIORITY_MAP[value.toLowerCase()];
+    if (typeof value === 'string') {
+      const mapped = PRIORITY_MAP[value.toLowerCase()];
+      return mapped !== undefined ? mapped : 5;
     }
-    return typeof value === 'number' ? value : 5;
+    return typeof value === 'number' ? Math.min(Math.max(value, 0), 10) : 5;
   })
-  @IsNumber()
-  @Min(0)
-  @Max(10)
   priority?: number;
 
   @ApiPropertyOptional({
