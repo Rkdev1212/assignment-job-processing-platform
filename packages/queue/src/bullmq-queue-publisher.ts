@@ -14,7 +14,7 @@ export class BullMQQueuePublisher implements IQueuePublisher {
 
   constructor(
     queueName: string,
-    private readonly redis: Redis,
+    redis: Redis,
   ) {
     this.queue = new Queue(queueName, {
       connection: redis,
