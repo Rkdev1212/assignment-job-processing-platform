@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./",
+    "paths": {
+      "@asyncflow/shared": ["../../packages/shared/src"],
+      "@asyncflow/contracts": ["../../packages/contracts/src"],
+      "@asyncflow/database": ["../../packages/database/src"],
+      "@asyncflow/queue": ["../../packages/queue/src"],
+      "@asyncflow/logger": ["../../packages/logger/src"],
+      "@asyncflow/metrics": ["../../packages/metrics/src"],
+      "@asyncflow/config": ["../../packages/config/src"],
+      "@asyncflow/utils": ["../../packages/utils/src"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
