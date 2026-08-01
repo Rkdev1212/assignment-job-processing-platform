@@ -6,6 +6,7 @@ import { PrometheusMetricsService } from '@asyncflow/metrics';
 import { PrismaJobRepository } from './infrastructure/prisma-job.repository';
 import { JobProcessor } from './processors/job.processor';
 import { RetryStrategyFactory } from '@asyncflow/utils';
+import * as http from 'http';
 
 /**
  * Worker Application Entry Point
@@ -13,6 +14,7 @@ import { RetryStrategyFactory } from '@asyncflow/utils';
 class WorkerApp {
   private processor: JobProcessor | null = null;
   private isShuttingDown = false;
+  private isReady = false;
 
   async start() {
     const config = ConfigService.getInstance();
@@ -63,18 +65,40 @@ class WorkerApp {
       );
 
       await this.processor.start();
+      this.isReady = true;
+
+      // Start HTTP health server so Render (Web Service) keeps the process alive
+      this.startHealthServer(config.app.port, logger);
 
       // Setup graceful shutdown
       this.setupGracefulShutdown(logger, prisma);
 
       logger.info('Worker is ready to process jobs');
-
-      // Keep process alive
-      process.stdin.resume();
     } catch (error) {
       logger.error('Failed to start worker', error instanceof Error ? error : undefined);
       process.exit(1);
     }
+  }
+
+  private startHealthServer(port: number, logger: PinoLoggerService) {
+    const server = http.createServer((req, res) => {
+      if (req.url === '/health' || req.url === '/') {
+        const status = this.isReady ? 200 : 503;
+        res.writeHead(status, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          status: this.isReady ? 'healthy' : 'starting',
+          worker: 'AsyncFlowWorker',
+          timestamp: new Date().toISOString(),
+        }));
+      } else {
+        res.writeHead(404);
+        res.end();
+      }
+    });
+
+    server.listen(port, () => {
+      logger.info(`Worker health server listening on port ${port}`);
+    });
   }
 
   private setupGracefulShutdown(logger: PinoLoggerService, prisma: PrismaService) {

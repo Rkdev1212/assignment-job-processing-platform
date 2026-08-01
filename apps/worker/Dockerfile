@@ -41,5 +41,8 @@ COPY --from=builder /app/apps/worker/dist ./apps/worker/dist
 # Copy built package dist files (shared libraries)
 COPY --from=builder /app/packages ./packages
 
+# Expose health check port
+EXPOSE 3000
+
 # Run worker
 CMD ["node", "apps/worker/dist/main.js"]
