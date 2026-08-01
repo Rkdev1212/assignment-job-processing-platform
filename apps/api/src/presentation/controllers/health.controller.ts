@@ -57,7 +57,10 @@ export class HealthController {
 
   private async checkDatabase() {
     try {
-      await this.prisma.$queryRaw`SELECT 1`;
+      await Promise.race([
+        this.prisma.$queryRaw`SELECT 1`,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000)),
+      ]);
       return { status: 'healthy' };
     } catch (error) {
       return { status: 'unhealthy', error: error instanceof Error ? error.message : 'Unknown error' };
@@ -66,7 +69,10 @@ export class HealthController {
 
   private async checkRedis() {
     try {
-      await this.redis.ping();
+      await Promise.race([
+        this.redis.ping(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000)),
+      ]);
       return { status: 'healthy' };
     } catch (error) {
       return { status: 'unhealthy', error: error instanceof Error ? error.message : 'Unknown error' };
@@ -75,7 +81,10 @@ export class HealthController {
 
   private async checkQueue() {
     try {
-      const queueStatus = await this.queuePublisher.getQueueStatus();
+      const queueStatus = await Promise.race([
+        this.queuePublisher.getQueueStatus(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000)),
+      ]);
       return {
         status: 'healthy',
         isPaused: queueStatus.isPaused,

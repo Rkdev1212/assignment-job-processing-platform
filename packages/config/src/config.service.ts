@@ -79,11 +79,25 @@ export class ConfigService {
    * Redis configuration
    */
   get redis() {
+    // Support full Redis URL (e.g. rediss://default:password@host:port)
+    const redisUrl = this.get('REDIS_URL', '');
+    if (redisUrl) {
+      const url = new URL(redisUrl);
+      return {
+        host: url.hostname,
+        port: parseInt(url.port || '6379', 10),
+        password: url.password || undefined,
+        db: 0,
+        tls: url.protocol === 'rediss:',
+      };
+    }
+
     return {
       host: this.get('REDIS_HOST', 'localhost'),
       port: this.getNumber('REDIS_PORT', 6379),
-      password: this.get('REDIS_PASSWORD', ''),
+      password: this.get('REDIS_PASSWORD', '') || undefined,
       db: this.getNumber('REDIS_DB', 0),
+      tls: this.getBoolean('REDIS_TLS', false),
     };
   }
 

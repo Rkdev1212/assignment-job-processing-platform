@@ -11,7 +11,10 @@ export class RedisFactory {
     port: number;
     password?: string;
     db?: number;
+    tls?: boolean;
   }): Redis {
+    const useTls = config.tls ?? config.port === 6380 ?? config.port === 443;
+
     return new Redis({
       host: config.host,
       port: config.port,
@@ -19,9 +22,12 @@ export class RedisFactory {
       db: config.db || 0,
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
+      connectTimeout: 10000,
+      commandTimeout: 5000,
+      ...(useTls && { tls: {} }),
       retryStrategy: (times: number) => {
-        const delay = Math.min(times * 50, 2000);
-        return delay;
+        if (times > 5) return null; // stop retrying after 5 attempts
+        return Math.min(times * 200, 2000);
       },
     });
   }
