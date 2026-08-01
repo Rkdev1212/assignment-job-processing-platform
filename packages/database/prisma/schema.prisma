@@ -1,0 +1,57 @@
+// Prisma Schema for AsyncFlow Job Processing Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Job Model
+model Job {
+  id              String    @id @default(uuid())
+  type            String    @db.VarChar(255)
+  payload         Json      @db.JsonB
+  status          String    @default("QUEUED") @db.VarChar(50)
+  priority        Int       @default(0)
+  attempts        Int       @default(0)
+  maxAttempts     Int       @default(3)
+  delay           Int       @default(0)
+  runAt           DateTime?
+  workerId        String?   @db.VarChar(255)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(3)
+  startedAt       DateTime? @db.Timestamptz(3)
+  completedAt     DateTime? @db.Timestamptz(3)
+  executionTime   Int?
+  lastError       String?   @db.Text
+  correlationId   String    @db.VarChar(255)
+
+  timeline JobTimeline[]
+
+  @@index([status])
+  @@index([type])
+  @@index([correlationId])
+  @@index([createdAt])
+  @@index([priority])
+  @@index([runAt])
+  @@map("jobs")
+}
+
+// Job Timeline Model - Tracks all state transitions
+model JobTimeline {
+  id           String   @id @default(uuid())
+  jobId        String
+  previousStatus String? @db.VarChar(50)
+  newStatus    String   @db.VarChar(50)
+  timestamp    DateTime @default(now()) @db.Timestamptz(3)
+  metadata     Json?    @db.JsonB
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([timestamp])
+  @@map("job_timeline")
+}
