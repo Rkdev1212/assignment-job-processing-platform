@@ -169,6 +169,24 @@ docker-compose up
 
 ---
 
-## License
+## Design Decisions
+
+- **BullMQ over custom queue** — mature, Redis-backed, handles retries/delays/priority natively with at-least-once delivery guarantees
+- **Clean Architecture** — business logic in domain layer, independent of NestJS/Prisma/BullMQ. Each layer only depends inward
+- **Repository pattern** — `IJobRepository` interface decouples domain from Prisma. Swap databases without touching business logic
+- **Monorepo (TurboRepo)** — shared packages (`contracts`, `shared`, `config`) used by both API and Worker with zero duplication and parallel builds
+- **Separate Worker process** — worker runs independently from the API so they scale separately and a worker crash doesn't affect the API
+- **String injection tokens** — NestJS DI uses string tokens (`ILogger`, `IJobRepository`) instead of interface types since TypeScript interfaces are erased at runtime
+- **Priority as 0–10 numeric internally** — accepts `high/normal/low` strings in the API (mapped to 10/5/0) for spec compliance while BullMQ works with numerics
+
+## Assumptions
+
+- External services (email, SMS) are simulated — the worker logs the payload and introduces a random delay to mimic real processing
+- A 10% random failure rate is intentional in the worker to demonstrate retry and dead letter queue behaviour
+- Authentication is demo-only — `POST /auth/token` is provided for testing convenience; in production this would be a proper identity service
+- Job types are open-ended strings (`email`, `sms`, `report`, etc.) — the worker routes by type but doesn't enforce a type registry
+- Multiple workers can run concurrently — BullMQ handles distributed locking via Redis to prevent duplicate execution
+
+---
 
 MIT

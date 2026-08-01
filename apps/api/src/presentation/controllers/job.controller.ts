@@ -16,6 +16,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { JobService } from '../../application/services/job.service';
 import { CreateJobDto } from '../dtos/create-job.dto';
@@ -102,5 +103,24 @@ export class JobController {
   async cancelJob(@Param('id') id: string): Promise<JobResponseDto> {
     const job = await this.jobService.cancelJob(id);
     return job.toObject() as JobResponseDto;
+  }
+
+  @Get('dead-letter')
+  @ApiOperation({ summary: 'List dead letter jobs (failed after max retries)' })
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Dead letter jobs retrieved' })
+  async getDeadLetterJobs(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ): Promise<PaginatedResponseDto<JobResponseDto>> {
+    const result = await this.jobService.getDeadLetterJobs(Number(page), Number(limit));
+    return {
+      data: result.data.map((job) => job.toObject() as JobResponseDto),
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+    };
   }
 }
