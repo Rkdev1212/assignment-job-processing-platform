@@ -36,11 +36,7 @@ import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 // import { IJobRepository, IQueuePublisher, ILogger, IMetricsCollector } from '@asyncflow/contracts';
 
 // Dependency Injection Tokens
-export const LOGGER_TOKEN = 'ILogger';
-export const METRICS_COLLECTOR_TOKEN = 'IMetricsCollector';
-export const QUEUE_PUBLISHER_TOKEN = 'IQueuePublisher';
-export const JOB_REPOSITORY_TOKEN = 'IJobRepository';
-
+import { LOGGER_TOKEN, METRICS_COLLECTOR_TOKEN, QUEUE_PUBLISHER_TOKEN, JOB_REPOSITORY_TOKEN } from './injection-tokens';
 @Module({
   imports: [
     PassportModule,

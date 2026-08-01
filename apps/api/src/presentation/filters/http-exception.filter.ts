@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ILogger } from '@asyncflow/contracts';
-import { LOGGER_TOKEN } from '../../app.module';
+import { LOGGER_TOKEN } from '../../injection-tokens';
 
 /**
  * Global HTTP Exception Filter

@@ -1,7 +1,7 @@
 import { Controller, Get, Header, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { IMetricsCollector } from '@asyncflow/contracts';
-import { METRICS_COLLECTOR_TOKEN } from '../../app.module';
+import { METRICS_COLLECTOR_TOKEN } from '../../injection-tokens';
 
 /**
  * Metrics Controller

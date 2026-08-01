@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PrismaService } from '@asyncflow/database';
 import { IQueuePublisher } from '@asyncflow/contracts';
 import { Redis } from 'ioredis';
-import { QUEUE_PUBLISHER_TOKEN } from '../../app.module';
+import { QUEUE_PUBLISHER_TOKEN } from '../../injection-tokens';
 
 /**
  * Health Controller

@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware, Inject } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { ILogger } from '@asyncflow/contracts';
-import { LOGGER_TOKEN } from '../../app.module';
+import { LOGGER_TOKEN } from '../../injection-tokens';
 
 /**
  * Request Logger Middleware

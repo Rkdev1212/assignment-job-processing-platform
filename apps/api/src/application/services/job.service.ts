@@ -9,7 +9,7 @@ import {
   METRICS_COLLECTOR_TOKEN,
   QUEUE_PUBLISHER_TOKEN,
   JOB_REPOSITORY_TOKEN,
-} from '../../app.module';
+} from '../../injection-tokens';
 
 /**
  * Job Service
