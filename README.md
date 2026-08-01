@@ -199,7 +199,7 @@ asyncflow/
 - Docker & Docker Compose
 - Git
 
-### Quick Start
+### Quick Start (Local)
 
 1. **Clone the repository**
 ```bash
@@ -222,6 +222,22 @@ This starts:
 ```
 http://localhost:3000/api/docs
 ```
+
+### 🌐 Deploy to Cloud (FREE)
+
+**Want to deploy AsyncFlow online for FREE?**
+
+We provide detailed guides for free hosting:
+
+- **[Render Deployment](./docs/RENDER_DEPLOYMENT.md)** ⭐ RECOMMENDED
+  - Complete platform (API + Worker + DB + Redis)
+  - No credit card required
+  - ~30 minutes setup
+  
+- **[All Free Hosting Options](./docs/FREE_HOSTING_OPTIONS.md)**
+  - Compare Render, Railway, Fly.io
+  - Best practices for free tier
+  - Step-by-step for each platform
 
 ### Local Development
 
