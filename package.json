@@ -1,0 +1,46 @@
+{
+  "name": "asyncflow",
+  "version": "1.0.0",
+  "description": "A distributed-ready asynchronous job processing platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "turbo run dev --filter=@asyncflow/api",
+    "dev:worker": "turbo run dev --filter=@asyncflow/worker",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:unit": "turbo run test:unit",
+    "test:integration": "turbo run test:integration",
+    "test:cov": "turbo run test:cov",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "db:migrate": "cd packages/database && npx prisma migrate deploy",
+    "db:generate": "cd packages/database && npx prisma generate",
+    "db:studio": "cd packages/database && npx prisma studio",
+    "db:seed": "cd packages/database && npx prisma db seed",
+    "benchmark": "node scripts/benchmark.js",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "prettier": "^3.1.0",
+    "turbo": "^1.11.0",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
+  },
+  "author": "Rkdev1212",
+  "license": "MIT"
+}

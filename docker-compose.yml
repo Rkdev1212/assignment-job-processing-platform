@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: asyncflow-postgres
+    environment:
+      POSTGRES_USER: asyncflow
+      POSTGRES_PASSWORD: asyncflow123
+      POSTGRES_DB: asyncflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U asyncflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - asyncflow-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: asyncflow-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - asyncflow-network
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: asyncflow-api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://asyncflow:asyncflow123@postgres:5432/asyncflow?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: production-secret-change-me
+      LOG_LEVEL: info
+      LOG_PRETTY: false
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - asyncflow-network
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: asyncflow-worker
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://asyncflow:asyncflow123@postgres:5432/asyncflow?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WORKER_ID: worker-docker-1
+      QUEUE_CONCURRENCY: 5
+      LOG_LEVEL: info
+      LOG_PRETTY: false
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - asyncflow-network
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  asyncflow-network:
+    driver: bridge
