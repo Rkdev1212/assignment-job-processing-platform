@@ -14,7 +14,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const startTime = Date.now();
     const { method, originalUrl, ip } = req;
-    const correlationId = req['correlationId'];
+    const correlationId = req.correlationId;
 
     this.logger.info(`Incoming request`, {
       method,

@@ -11,14 +11,14 @@ export class CreateJobDto {
     example: 'email.send',
   })
   @IsString()
-  type: string;
+  type!: string;
 
   @ApiProperty({
     description: 'Job payload data',
     example: { to: 'user@example.com', subject: 'Welcome', body: 'Hello World' },
   })
   @IsObject()
-  payload: Record<string, any>;
+  payload!: Record<string, any>;
 
   @ApiPropertyOptional({
     description: 'Job priority (higher number = higher priority)',
