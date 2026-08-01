@@ -24,7 +24,7 @@ class JobStatus {
 const VALID_TRANSITIONS = {
   [JobStatus.QUEUED]: [JobStatus.PROCESSING, JobStatus.CANCELLED],
   [JobStatus.PROCESSING]: [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.RETRYING, JobStatus.CANCELLED],
-  [JobStatus.RETRYING]: [JobStatus.PROCESSING, JobStatus.FAILED, JobStatus.CANCELLED],
+  [JobStatus.RETRYING]: [JobStatus.PROCESSING, JobStatus.FAILED, JobStatus.CANCELLED, JobStatus.DEAD_LETTER],
   [JobStatus.FAILED]: [JobStatus.DEAD_LETTER, JobStatus.RETRYING],
   [JobStatus.COMPLETED]: [],
   [JobStatus.DEAD_LETTER]: [],
