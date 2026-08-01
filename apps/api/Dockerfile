@@ -29,6 +29,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Install OpenSSL for Prisma engine compatibility
+RUN apk add --no-cache openssl
+
 # Copy node_modules from builder (includes all workspace deps like @nestjs/core)
 COPY --from=builder /app/node_modules ./node_modules
 
