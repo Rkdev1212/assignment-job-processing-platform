@@ -105,11 +105,11 @@ export function CreateJobModal({ token, onCreated }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <Field label="Priority">
               <select
-                className={inputCls}
+                className="w-full h-9 rounded-md border bg-background text-foreground px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
                 value={form.priority}
                 onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}
               >
-                {PRIORITIES.map(p => <option key={p} value={p}>{p}</option>)}
+                {PRIORITIES.map(p => <option key={p} value={p} className="bg-background text-foreground">{p}</option>)}
               </select>
             </Field>
             <Field label="Max Attempts">

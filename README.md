@@ -5,6 +5,7 @@ A production-grade asynchronous job processing platform built with clean archite
 **Live API:** https://assignment-job-processing-platform.onrender.com  
 **Swagger UI:** https://assignment-job-processing-platform.onrender.com/api/docs  
 **Health Check:** https://assignment-job-processing-platform.onrender.com/api/v1/health  
+**Dashboard:** https://assignment-job-processing-platform-dashboard-pv0kigxdi.vercel.app/  
 
 > **Cold start notice:** The API and Worker run on Render's free tier and may take **30–60 seconds** to wake up after inactivity. If the first request times out, wait a moment and retry. Upstash Redis on the free tier also has an occasional ~1s cold connection latency on first use.
 
