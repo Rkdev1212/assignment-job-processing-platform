@@ -6,7 +6,6 @@
     "declaration": true,
     "declarationMap": true,
     "outDir": "./dist",
-    "rootDir": "./",
     "removeComments": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -29,15 +28,15 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@asyncflow/contracts": ["packages/contracts/src"],
-      "@asyncflow/database": ["packages/database/src"],
-      "@asyncflow/queue": ["packages/queue/src"],
-      "@asyncflow/logger": ["packages/logger/src"],
-      "@asyncflow/metrics": ["packages/metrics/src"],
-      "@asyncflow/config": ["packages/config/src"],
-      "@asyncflow/shared": ["packages/shared/src"],
-      "@asyncflow/testing": ["packages/testing/src"],
-      "@asyncflow/utils": ["packages/utils/src"]
+      "@asyncflow/contracts": ["packages/contracts/dist"],
+      "@asyncflow/database": ["packages/database/dist"],
+      "@asyncflow/queue": ["packages/queue/dist"],
+      "@asyncflow/logger": ["packages/logger/dist"],
+      "@asyncflow/metrics": ["packages/metrics/dist"],
+      "@asyncflow/config": ["packages/config/dist"],
+      "@asyncflow/shared": ["packages/shared/dist"],
+      "@asyncflow/testing": ["packages/testing/dist"],
+      "@asyncflow/utils": ["packages/utils/dist"]
     }
   },
   "exclude": ["node_modules", "dist", "coverage"]

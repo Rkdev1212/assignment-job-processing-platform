@@ -1,6 +1,5 @@
 import { Job as BullJob, Worker } from 'bullmq';
 import { IJobRepository, ILogger, IMetricsCollector, IRetryStrategy } from '@asyncflow/contracts';
-import { Job, JobStatus } from '@asyncflow/shared';
 import { ConfigService } from '@asyncflow/config';
 
 /**
@@ -14,7 +13,7 @@ export class JobProcessor {
   private readonly workerId: string;
 
   constructor(
-    private readonly config: ConfigService,
+    config: ConfigService,
     private readonly jobRepository: IJobRepository,
     private readonly logger: ILogger,
     private readonly metrics: IMetricsCollector,

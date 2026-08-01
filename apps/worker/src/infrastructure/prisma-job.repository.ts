@@ -77,7 +77,7 @@ export class PrismaJobRepository implements IJobRepository {
     ]);
 
     return {
-      data: jobs.map((job) => this.mapToDomain(job)),
+      data: jobs.map((job: any) => this.mapToDomain(job)),
       total,
       page,
       limit,
@@ -150,7 +150,7 @@ export class PrismaJobRepository implements IJobRepository {
       take: limit,
     });
 
-    return jobs.map((job) => this.mapToDomain(job));
+    return jobs.map((job: any) => this.mapToDomain(job));
   }
 
   private mapToDomain(record: any): Job {
