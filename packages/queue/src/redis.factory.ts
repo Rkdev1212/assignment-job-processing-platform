@@ -13,7 +13,7 @@ export class RedisFactory {
     db?: number;
     tls?: boolean;
   }): Redis {
-    const useTls = config.tls ?? config.port === 6380 ?? config.port === 443;
+    const useTls = config.tls === true || config.port === 6380 || config.port === 443;
 
     return new Redis({
       host: config.host,
