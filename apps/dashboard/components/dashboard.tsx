@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JobsTable } from '@/components/jobs-table';
+import { CreateJobModal } from '@/components/create-job-modal';
 import { api, type Job, type PaginatedResponse, type HealthCheck } from '@/lib/api';
 
 interface Props {
@@ -44,11 +45,8 @@ export function Dashboard({ initialHealth, initialJobs, initialDeadLetter }: Pro
     }
   }, [statusFilter]);
 
-  useEffect(() => {
-    refresh();
-  }, [statusFilter, refresh]);
+  useEffect(() => { refresh(); }, [statusFilter, refresh]);
 
-  // Auto-refresh every 10s
   useEffect(() => {
     const interval = setInterval(refresh, 10000);
     return () => clearInterval(interval);
@@ -71,22 +69,28 @@ export function Dashboard({ initialHealth, initialJobs, initialDeadLetter }: Pro
 
   const handleGetToken = async () => {
     if (!tokenInput.trim()) return;
-    const res = await api.generateToken(tokenInput.trim());
-    setToken(res.token);
+    try {
+      const res = await api.generateToken(tokenInput.trim());
+      setToken(res.token);
+    } catch {
+      alert('Failed to generate token — is the API awake?');
+    }
   };
 
+  const totalJobs = jobs?.total ?? 0;
+  const allJobs = jobs?.data ?? [];
   const counts = {
-    queued: jobs?.data.filter(j => j.status === 'QUEUED').length ?? 0,
-    processing: jobs?.data.filter(j => j.status === 'PROCESSING').length ?? 0,
-    completed: jobs?.data.filter(j => j.status === 'COMPLETED').length ?? 0,
-    failed: jobs?.data.filter(j => j.status === 'FAILED').length ?? 0,
+    queued: allJobs.filter(j => j.status === 'QUEUED').length,
+    processing: allJobs.filter(j => j.status === 'PROCESSING').length,
+    completed: allJobs.filter(j => j.status === 'COMPLETED').length,
+    failed: allJobs.filter(j => j.status === 'FAILED').length,
   };
 
   const isHealthy = health?.status === 'healthy';
 
   return (
     <div className="space-y-6">
-      {/* Header row */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Job Monitor</h1>
@@ -101,10 +105,11 @@ export function Dashboard({ initialHealth, initialJobs, initialDeadLetter }: Pro
           <Button variant="outline" size="sm" onClick={refresh} disabled={loading}>
             {loading ? 'Refreshing…' : 'Refresh'}
           </Button>
+          {token && <CreateJobModal token={token} onCreated={refresh} />}
         </div>
       </div>
 
-      {/* Stats cards */}
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label="Queued" value={counts.queued} color="text-yellow-500" />
         <StatCard label="Processing" value={counts.processing} color="text-blue-500" />
@@ -112,7 +117,7 @@ export function Dashboard({ initialHealth, initialJobs, initialDeadLetter }: Pro
         <StatCard label="Failed" value={counts.failed} color="text-red-500" />
       </div>
 
-      {/* Health + Queue controls */}
+      {/* Health + Queue control */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader><CardTitle className="text-sm font-medium text-muted-foreground">System Health</CardTitle></CardHeader>
@@ -127,61 +132,71 @@ export function Dashboard({ initialHealth, initialJobs, initialDeadLetter }: Pro
                 </div>
               </>
             ) : (
-              <p className="text-sm text-muted-foreground">Unable to reach API (cold start?)</p>
+              <p className="text-sm text-muted-foreground">Unable to reach API — may be cold starting (wait 30–60s)</p>
             )}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="text-sm font-medium text-muted-foreground">Queue Control</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-sm font-medium text-muted-foreground">Auth & Queue Control</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <div className="text-sm space-y-1">
-              <div className="flex justify-between"><span className="text-muted-foreground">Status</span><Badge variant={health?.checks.queue.isPaused ? 'secondary' : 'default'}>{health?.checks.queue.isPaused ? 'Paused' : 'Running'}</Badge></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Waiting</span><span>{health?.checks.queue.waiting ?? '—'}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Active</span><span>{health?.checks.queue.active ?? '—'}</span></div>
-            </div>
-            {token ? (
-              <Button size="sm" variant={health?.checks.queue.isPaused ? 'default' : 'outline'} onClick={handleQueueToggle} disabled={queueLoading} className="w-full">
-                {queueLoading ? 'Working…' : health?.checks.queue.isPaused ? 'Resume Queue' : 'Pause Queue'}
-              </Button>
+            {!token ? (
+              <>
+                <p className="text-xs text-muted-foreground">Enter a username to get a token — required for creating/cancelling jobs and queue control.</p>
+                <div className="flex gap-2">
+                  <input
+                    className="flex-1 h-8 rounded-md border bg-transparent px-3 text-sm outline-none"
+                    placeholder="Username (e.g. testuser)"
+                    value={tokenInput}
+                    onChange={e => setTokenInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleGetToken()}
+                  />
+                  <Button size="sm" onClick={handleGetToken}>Get Token</Button>
+                </div>
+              </>
             ) : (
-              <div className="flex gap-2">
-                <input
-                  className="flex-1 h-8 rounded-md border bg-transparent px-3 text-sm outline-none"
-                  placeholder="Username for token"
-                  value={tokenInput}
-                  onChange={e => setTokenInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleGetToken()}
-                />
-                <Button size="sm" onClick={handleGetToken}>Get Token</Button>
-              </div>
+              <>
+                <p className="text-xs text-green-600">✓ Token set — create jobs, cancel jobs, and control the queue</p>
+                <div className="text-sm space-y-1">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Queue</span><Badge variant={health?.checks.queue.isPaused ? 'secondary' : 'default'}>{health?.checks.queue.isPaused ? 'Paused' : 'Running'}</Badge></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Waiting</span><span>{health?.checks.queue.waiting ?? '—'}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Active</span><span>{health?.checks.queue.active ?? '—'}</span></div>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant={health?.checks.queue.isPaused ? 'default' : 'outline'} onClick={handleQueueToggle} disabled={queueLoading} className="flex-1">
+                    {queueLoading ? 'Working…' : health?.checks.queue.isPaused ? 'Resume Queue' : 'Pause Queue'}
+                  </Button>
+                  <Button size="sm" variant="ghost" className="text-xs text-muted-foreground" onClick={() => setToken('')}>
+                    Clear Token
+                  </Button>
+                </div>
+              </>
             )}
-            {token && <p className="text-xs text-green-600">✓ Token set — queue control enabled</p>}
           </CardContent>
         </Card>
       </div>
 
       {/* Jobs tabs */}
       <Tabs defaultValue="jobs">
-        <TabsList>
-          <TabsTrigger value="jobs">Jobs ({jobs?.total ?? 0})</TabsTrigger>
-          <TabsTrigger value="dead-letter">Dead Letter ({deadLetter?.total ?? 0})</TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between mb-3">
+          <TabsList>
+            <TabsTrigger value="jobs">Jobs ({totalJobs})</TabsTrigger>
+            <TabsTrigger value="dead-letter">Dead Letter ({deadLetter?.total ?? 0})</TabsTrigger>
+          </TabsList>
+          {!token && (
+            <p className="text-xs text-muted-foreground">Get a token above to create or cancel jobs</p>
+          )}
+        </div>
 
-        <TabsContent value="jobs" className="space-y-4">
+        <TabsContent value="jobs" className="space-y-3">
           <div className="flex gap-2 flex-wrap">
             {STATUS_FILTERS.map(s => (
-              <Button
-                key={s}
-                size="sm"
-                variant={statusFilter === s ? 'default' : 'outline'}
-                onClick={() => setStatusFilter(s)}
-              >
+              <Button key={s} size="sm" variant={statusFilter === s ? 'default' : 'outline'} onClick={() => setStatusFilter(s)}>
                 {s}
               </Button>
             ))}
           </div>
-          <JobsTable jobs={jobs?.data ?? []} />
+          <JobsTable jobs={allJobs} token={token} onCancelled={refresh} />
         </TabsContent>
 
         <TabsContent value="dead-letter">
@@ -207,9 +222,7 @@ function HealthRow({ label, status }: { label: string; status: string }) {
   return (
     <div className="flex items-center justify-between text-sm">
       <span className="text-muted-foreground">{label}</span>
-      <Badge variant={status === 'healthy' ? 'default' : 'destructive'} className="text-xs">
-        {status}
-      </Badge>
+      <Badge variant={status === 'healthy' ? 'default' : 'destructive'} className="text-xs">{status}</Badge>
     </div>
   );
 }

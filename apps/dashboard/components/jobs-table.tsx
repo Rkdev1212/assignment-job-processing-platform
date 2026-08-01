@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import type { Job } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { api, type Job } from '@/lib/api';
 
 const STATUS_STYLES: Record<string, string> = {
   QUEUED: 'bg-yellow-500/15 text-yellow-600 border-yellow-500/30',
@@ -14,7 +16,30 @@ const STATUS_STYLES: Record<string, string> = {
   CANCELLED: 'bg-gray-500/15 text-gray-500 border-gray-500/30',
 };
 
-export function JobsTable({ jobs }: { jobs: Job[] }) {
+const CANCELLABLE = new Set(['QUEUED', 'RETRYING']);
+
+interface Props {
+  jobs: Job[];
+  token?: string;
+  onCancelled?: () => void;
+}
+
+export function JobsTable({ jobs, token, onCancelled }: Props) {
+  const [cancelling, setCancelling] = useState<string | null>(null);
+
+  const handleCancel = async (id: string) => {
+    if (!token) return;
+    setCancelling(id);
+    try {
+      await api.cancelJob(token, id);
+      onCancelled?.();
+    } catch (e) {
+      console.error('Cancel failed', e);
+    } finally {
+      setCancelling(null);
+    }
+  };
+
   if (jobs.length === 0) {
     return <div className="text-center py-12 text-muted-foreground text-sm">No jobs found</div>;
   }
@@ -32,6 +57,7 @@ export function JobsTable({ jobs }: { jobs: Job[] }) {
             <TableHead>Duration</TableHead>
             <TableHead>Created</TableHead>
             <TableHead>Error</TableHead>
+            {token && <TableHead></TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -56,9 +82,24 @@ export function JobsTable({ jobs }: { jobs: Job[] }) {
               <TableCell className="text-xs text-muted-foreground">
                 {new Date(job.createdAt).toLocaleTimeString()}
               </TableCell>
-              <TableCell className="text-xs text-red-400 max-w-[200px] truncate">
+              <TableCell className="text-xs text-red-400 max-w-[160px] truncate">
                 {job.lastError ?? '—'}
               </TableCell>
+              {token && (
+                <TableCell>
+                  {CANCELLABLE.has(job.status) && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 h-7 px-2"
+                      disabled={cancelling === job.id}
+                      onClick={() => handleCancel(job.id)}
+                    >
+                      {cancelling === job.id ? '…' : 'Cancel'}
+                    </Button>
+                  )}
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

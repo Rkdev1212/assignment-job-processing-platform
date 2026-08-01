@@ -79,4 +79,15 @@ export const api = {
     fetchApi('/queue/pause', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
   resumeQueue: (token: string) =>
     fetchApi('/queue/resume', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+  createJob: (token: string, data: { type: string; payload: Record<string, unknown>; priority?: string | number; delay?: number; maxAttempts?: number; runAt?: string }) =>
+    fetchApi<Job>('/jobs', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    }),
+  cancelJob: (token: string, id: string) =>
+    fetchApi<Job>(`/jobs/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    }),
 };
