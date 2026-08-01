@@ -11,6 +11,15 @@ import {
   JOB_REPOSITORY_TOKEN,
 } from '../../injection-tokens';
 
+const PRIORITY_MAP: Record<string, number> = { low: 0, normal: 5, high: 10 };
+
+function resolvePriority(p?: string | number): number {
+  if (p === undefined || p === null) return 5;
+  if (typeof p === 'number') return Math.min(Math.max(p, 0), 10);
+  const mapped = PRIORITY_MAP[String(p).toLowerCase()];
+  return mapped !== undefined ? mapped : 5;
+}
+
 /**
  * Job Service
  * 
@@ -42,7 +51,7 @@ export class JobService {
       jobId,
       dto.type,
       dto.payload,
-      dto.priority || 0,
+      resolvePriority(dto.priority),
       dto.maxAttempts || 3,
       dto.delay || 0,
       dto.runAt || null,

@@ -38,14 +38,7 @@ export class CreateJobDto {
     default: 'normal',
   })
   @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      const mapped = PRIORITY_MAP[value.toLowerCase()];
-      return mapped !== undefined ? mapped : 5;
-    }
-    return typeof value === 'number' ? Math.min(Math.max(value, 0), 10) : 5;
-  })
-  priority?: number;
+  priority?: string | number;
 
   @ApiPropertyOptional({
     description: 'Maximum retry attempts',
