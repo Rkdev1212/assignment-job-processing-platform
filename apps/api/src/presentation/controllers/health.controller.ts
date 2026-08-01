@@ -59,7 +59,7 @@ export class HealthController {
       await this.prisma.$queryRaw`SELECT 1`;
       return { status: 'healthy' };
     } catch (error) {
-      return { status: 'unhealthy', error: error.message };
+      return { status: 'unhealthy', error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -68,7 +68,7 @@ export class HealthController {
       await this.redis.ping();
       return { status: 'healthy' };
     } catch (error) {
-      return { status: 'unhealthy', error: error.message };
+      return { status: 'unhealthy', error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -82,7 +82,7 @@ export class HealthController {
         active: queueStatus.active,
       };
     } catch (error) {
-      return { status: 'unhealthy', error: error.message };
+      return { status: 'unhealthy', error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 }

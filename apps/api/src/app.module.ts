@@ -32,8 +32,14 @@ import { HttpExceptionFilter } from './presentation/filters/http-exception.filte
 // Auth
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 
-// Contracts
-import { IJobRepository, IQueuePublisher, ILogger, IMetricsCollector } from '@asyncflow/contracts';
+// Contracts - not imported, will use string tokens instead
+// import { IJobRepository, IQueuePublisher, ILogger, IMetricsCollector } from '@asyncflow/contracts';
+
+// Dependency Injection Tokens
+export const LOGGER_TOKEN = 'ILogger';
+export const METRICS_COLLECTOR_TOKEN = 'IMetricsCollector';
+export const QUEUE_PUBLISHER_TOKEN = 'IQueuePublisher';
+export const JOB_REPOSITORY_TOKEN = 'IJobRepository';
 
 @Module({
   imports: [
@@ -82,19 +88,19 @@ import { IJobRepository, IQueuePublisher, ILogger, IMetricsCollector } from '@as
 
     // Logger
     {
-      provide: ILogger,
+      provide: LOGGER_TOKEN,
       useFactory: () => new PinoLoggerService('AsyncFlowAPI'),
     },
 
     // Metrics
     {
-      provide: IMetricsCollector,
+      provide: METRICS_COLLECTOR_TOKEN,
       useClass: PrometheusMetricsService,
     },
 
     // Queue
     {
-      provide: IQueuePublisher,
+      provide: QUEUE_PUBLISHER_TOKEN,
       useFactory: (config: ConfigService, redis: any) => {
         return new BullMQQueuePublisher(config.queue.name, redis);
       },
@@ -103,7 +109,7 @@ import { IJobRepository, IQueuePublisher, ILogger, IMetricsCollector } from '@as
 
     // Repository
     {
-      provide: IJobRepository,
+      provide: JOB_REPOSITORY_TOKEN,
       useClass: PrismaJobRepository,
     },
 

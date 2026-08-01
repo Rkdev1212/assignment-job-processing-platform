@@ -11,7 +11,7 @@ async function bootstrap() {
 
   // Get configuration
   const configService = app.get(ConfigService);
-  const logger = app.get<ILogger>(ILogger);
+  const logger = app.get<ILogger>('ILogger');
 
   // Enable CORS
   app.enableCors();
