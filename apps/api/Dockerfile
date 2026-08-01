@@ -3,6 +3,7 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Force rebuild - 2026-08-01
 # Copy root package files
 COPY package*.json ./
 COPY package-lock.json ./
