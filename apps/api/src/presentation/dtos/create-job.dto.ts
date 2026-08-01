@@ -1,18 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsObject, IsOptional, IsNumber, Min, Max, IsDate } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
+import { Type } from 'class-transformer';
 
 export enum JobPriority {
   LOW = 'low',
   NORMAL = 'normal',
   HIGH = 'high',
 }
-
-const PRIORITY_MAP: Record<string, number> = {
-  low: 0,
-  normal: 5,
-  high: 10,
-};
 
 /**
  * Create Job DTO
