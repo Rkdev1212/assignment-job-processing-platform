@@ -37,7 +37,8 @@ COPY package-lock.json ./
 RUN npm ci --omit=dev
 
 # Copy built files from builder
-COPY --from=builder /app/packages/database/node_modules/.prisma ./packages/database/node_modules/.prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/apps/worker/dist ./apps/worker/dist
 COPY --from=builder /app/packages ./packages
 
