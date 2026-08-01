@@ -9,6 +9,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@asyncflow/contracts": "*",
     "prom-client": "^15.1.0"
   },
   "devDependencies": {
