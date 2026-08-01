@@ -41,69 +41,78 @@ export function JobsTable({ jobs, token, onCancelled }: Props) {
   };
 
   if (jobs.length === 0) {
-    return <div className="text-center py-12 text-muted-foreground text-sm">No jobs found</div>;
+    return (
+      <div className="text-center py-12 text-muted-foreground text-sm border rounded-md">
+        No jobs found
+      </div>
+    );
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Priority</TableHead>
-            <TableHead>Attempts</TableHead>
-            <TableHead>Duration</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead>Error</TableHead>
-            {token && <TableHead></TableHead>}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {jobs.map(job => (
-            <TableRow key={job.id}>
-              <TableCell className="font-mono text-xs text-muted-foreground">{job.id.slice(0, 8)}…</TableCell>
-              <TableCell className="font-medium">{job.type}</TableCell>
-              <TableCell>
-                <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[job.status] ?? ''}`}>
-                  {job.status}
-                </span>
-              </TableCell>
-              <TableCell>
-                <Badge variant="outline" className="text-xs">
-                  {job.priority >= 8 ? 'HIGH' : job.priority >= 4 ? 'NORMAL' : 'LOW'}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-sm">{job.attempts}/{job.maxAttempts}</TableCell>
-              <TableCell className="text-sm text-muted-foreground">
-                {job.executionTime ? `${job.executionTime}ms` : '—'}
-              </TableCell>
-              <TableCell className="text-xs text-muted-foreground">
-                {new Date(job.createdAt).toLocaleTimeString()}
-              </TableCell>
-              <TableCell className="text-xs text-red-400 max-w-[160px] truncate">
-                {job.lastError ?? '—'}
-              </TableCell>
-              {token && (
-                <TableCell>
-                  {CANCELLABLE.has(job.status) && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 h-7 px-2"
-                      disabled={cancelling === job.id}
-                      onClick={() => handleCancel(job.id)}
-                    >
-                      {cancelling === job.id ? '…' : 'Cancel'}
-                    </Button>
-                  )}
-                </TableCell>
-              )}
+    <div className="rounded-md border overflow-hidden">
+      {/* Horizontal scroll on mobile */}
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="min-w-[80px]">ID</TableHead>
+              <TableHead className="min-w-[80px]">Type</TableHead>
+              <TableHead className="min-w-[110px]">Status</TableHead>
+              <TableHead className="min-w-[80px]">Priority</TableHead>
+              <TableHead className="min-w-[80px]">Attempts</TableHead>
+              <TableHead className="min-w-[80px] hidden sm:table-cell">Duration</TableHead>
+              <TableHead className="min-w-[80px] hidden sm:table-cell">Created</TableHead>
+              <TableHead className="min-w-[120px] hidden md:table-cell">Error</TableHead>
+              {token && <TableHead className="min-w-[70px]"></TableHead>}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {jobs.map(job => (
+              <TableRow key={job.id}>
+                <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                  {job.id.slice(0, 8)}…
+                </TableCell>
+                <TableCell className="font-medium text-sm whitespace-nowrap">{job.type}</TableCell>
+                <TableCell>
+                  <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap ${STATUS_STYLES[job.status] ?? ''}`}>
+                    {job.status}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="text-xs whitespace-nowrap">
+                    {job.priority >= 8 ? 'HIGH' : job.priority >= 4 ? 'NORMAL' : 'LOW'}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-sm text-center">{job.attempts}/{job.maxAttempts}</TableCell>
+                <TableCell className="text-sm text-muted-foreground hidden sm:table-cell whitespace-nowrap">
+                  {job.executionTime ? `${job.executionTime}ms` : '—'}
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground hidden sm:table-cell whitespace-nowrap">
+                  {new Date(job.createdAt).toLocaleTimeString()}
+                </TableCell>
+                <TableCell className="text-xs text-red-400 max-w-[160px] truncate hidden md:table-cell">
+                  {job.lastError ?? '—'}
+                </TableCell>
+                {token && (
+                  <TableCell className="px-2">
+                    {CANCELLABLE.has(job.status) && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-xs text-red-500 hover:text-red-600 h-7 px-2 whitespace-nowrap"
+                        disabled={cancelling === job.id}
+                        onClick={() => handleCancel(job.id)}
+                      >
+                        {cancelling === job.id ? '…' : 'Cancel'}
+                      </Button>
+                    )}
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
