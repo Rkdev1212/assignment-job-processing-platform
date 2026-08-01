@@ -5,6 +5,7 @@ WORKDIR /app
 
 # Copy root package files
 COPY package*.json ./
+COPY package-lock.json ./
 COPY turbo.json ./
 COPY tsconfig.json ./
 
@@ -30,9 +31,10 @@ ENV NODE_ENV=production
 
 # Copy package files
 COPY package*.json ./
+COPY package-lock.json ./
 
 # Install production dependencies only
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy built files from builder
 COPY --from=builder /app/packages/database/node_modules/.prisma ./packages/database/node_modules/.prisma
