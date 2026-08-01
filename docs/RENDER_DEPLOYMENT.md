@@ -2,11 +2,11 @@
 
 ## Overview
 
-Render offers a generous free tier perfect for hosting AsyncFlow. You'll deploy:
-- ✅ PostgreSQL Database (FREE)
-- ✅ Redis Instance (FREE)
-- ✅ API Web Service (FREE)
-- ✅ Worker Background Service (FREE)
+You can host AsyncFlow completely FREE using:
+- ✅ PostgreSQL Database on Render (FREE)
+- ✅ Redis on Upstash (FREE - 10,000 commands/day)
+- ✅ API Web Service on Render (FREE)
+- ✅ Worker Background Service on Render (FREE)
 
 **Total Cost: $0/month** (with limitations)
 
@@ -43,22 +43,35 @@ Render offers a generous free tier perfect for hosting AsyncFlow. You'll deploy:
    - Internal Database URL (for services)
    - External Database URL (for local testing)
 
-## Step 3: Create Redis Instance
+## Step 3: Create Redis (Using Upstash - FREE)
 
-1. **Dashboard** → Click "New +" → Select "Redis"
+⚠️ **Note:** Render no longer offers free Redis. We'll use Upstash Redis (FREE tier).
 
-2. **Configure Redis:**
-   ```
-   Name: asyncflow-redis
-   Region: Same as database
-   ```
+1. **Go to Upstash:** https://upstash.com
 
-3. **Plan:** Select **Free** (25MB storage, eviction when full)
+2. **Sign up** (Free account, no credit card required)
 
-4. **Create Redis** → Wait ~1 minute
+3. **Create Database:**
+   - Click "Create Database"
+   - Name: `asyncflow-redis`
+   - Type: Regional
+   - Region: Choose closest to your Render region
+   - Select **Free** tier (10,000 commands/day)
 
-5. **Copy Redis URL:**
-   - Internal Redis URL (starts with `redis://`)
+4. **Copy Connection Details:**
+   - Click on your database
+   - Scroll to "REST API" section
+   - Copy these values:
+     ```
+     UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
+     UPSTASH_REDIS_REST_TOKEN=xxx
+     ```
+   - Also note:
+     ```
+     Endpoint: xxx.upstash.io
+     Port: 6379
+     Password: your-password-here
+     ```
 
 ## Step 4: Deploy API Service
 
@@ -95,9 +108,11 @@ Render offers a generous free tier perfect for hosting AsyncFlow. You'll deploy:
    # Database (use Internal Database URL from Step 2)
    DATABASE_URL=postgresql://asyncflow:XXXX@dpg-XXXX.render.com/asyncflow
    
-   # Redis (use Internal Redis URL from Step 3)
-   REDIS_HOST=red-XXXX.render.com
+   # Redis (use Upstash details from Step 3)
+   REDIS_HOST=perfect-unicorn-12345.upstash.io
    REDIS_PORT=6379
+   REDIS_PASSWORD=your-upstash-password-here
+   REDIS_TLS=true
    
    # JWT Secret (generate a strong secret)
    JWT_SECRET=your-super-secret-change-this-to-random-string
@@ -238,10 +253,12 @@ curl -X POST https://asyncflow-api-XXXX.onrender.com/api/v1/jobs \
 - ⚠️ Expires after 90 days (need to create new one)
 - ⚠️ No automated backups
 
-### Redis
-- ✅ 25 MB storage
-- ⚠️ Eviction when full (LRU)
-- ⚠️ No persistence guarantees
+### Redis (Upstash)
+- ✅ 10,000 commands/day FREE
+- ✅ 256 MB storage
+- ✅ Global edge locations
+- ✅ TLS encryption
+- ⚠️ Rate limited after 10k commands
 
 ### Web Service (API)
 - ✅ 512 MB RAM
