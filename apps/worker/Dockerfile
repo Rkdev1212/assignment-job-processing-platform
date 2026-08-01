@@ -13,7 +13,7 @@ COPY tsconfig.json ./
 COPY packages ./packages
 COPY apps/worker ./apps/worker
 
-# Install dependencies
+# Install ALL dependencies (including devDependencies needed for build)
 RUN npm install
 
 # Generate Prisma client
@@ -29,17 +29,13 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy package files
-COPY package*.json ./
-COPY package-lock.json ./
+# Copy node_modules from builder (includes all workspace deps)
+COPY --from=builder /app/node_modules ./node_modules
 
-# Install production dependencies only
-RUN npm ci --omit=dev
-
-# Copy built files from builder
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Copy built dist files
 COPY --from=builder /app/apps/worker/dist ./apps/worker/dist
+
+# Copy built package dist files (shared libraries)
 COPY --from=builder /app/packages ./packages
 
 # Run worker

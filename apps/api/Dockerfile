@@ -3,7 +3,6 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Force rebuild - 2026-08-01
 # Copy root package files
 COPY package*.json ./
 COPY package-lock.json ./
@@ -14,7 +13,7 @@ COPY tsconfig.json ./
 COPY packages ./packages
 COPY apps/api ./apps/api
 
-# Install dependencies
+# Install ALL dependencies (including devDependencies needed for build)
 RUN npm install
 
 # Generate Prisma client
@@ -30,17 +29,13 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy package files
-COPY package*.json ./
-COPY package-lock.json ./
+# Copy node_modules from builder (includes all workspace deps like @nestjs/core)
+COPY --from=builder /app/node_modules ./node_modules
 
-# Install production dependencies only
-RUN npm ci --omit=dev
-
-# Copy built files from builder
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Copy built dist files
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
+
+# Copy built package dist files (shared libraries)
 COPY --from=builder /app/packages ./packages
 
 # Copy Prisma schema for migrations
@@ -49,5 +44,5 @@ COPY packages/database/prisma ./packages/database/prisma
 # Expose port
 EXPOSE 3000
 
-# Start server (migrations should be run separately as a one-off job)
+# Start server
 CMD ["node", "apps/api/dist/main.js"]
