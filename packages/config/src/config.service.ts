@@ -117,7 +117,7 @@ export class ConfigService {
    */
   get jwt() {
     return {
-      secret: this.getRequired('JWT_SECRET'),
+      secret: this.get('JWT_SECRET', ''),
       expiration: this.get('JWT_EXPIRATION', '24h'),
     };
   }
@@ -178,7 +178,7 @@ export class ConfigService {
    * Validate required configuration
    */
   private validateConfig(): void {
-    const required = ['DATABASE_URL', 'JWT_SECRET'];
+    const required = ['DATABASE_URL'];
 
     for (const key of required) {
       if (!process.env[key]) {
