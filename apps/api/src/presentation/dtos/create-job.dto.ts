@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsObject, IsOptional, IsNumber, Min, Max, IsDate, IsEnum } from 'class-validator';
+import { IsString, IsObject, IsOptional, IsNumber, Min, Max, IsDate } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
 export enum JobPriority {
