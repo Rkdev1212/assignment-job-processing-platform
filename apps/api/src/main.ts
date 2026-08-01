@@ -50,9 +50,13 @@ async function bootstrap() {
     },
   });
 
-  // Prisma lifecycle
+  // Prisma lifecycle - don't crash on connection failure, health check will report it
   const prismaService = app.get(PrismaService);
-  await prismaService.onModuleInit();
+  try {
+    await prismaService.onModuleInit();
+  } catch (err) {
+    logger.warn('Database connection failed on startup - service will start in degraded mode', { error: err instanceof Error ? err.message : String(err) });
+  }
 
   // Graceful shutdown
   process.on('SIGINT', async () => {
