@@ -148,44 +148,126 @@ You can host AsyncFlow completely FREE using:
 
 8. **Wait for deployment** (~5-10 minutes first time)
 
-## Step 5: Deploy Worker Service
+## Step 5: Deploy Worker Service (Background Worker with Docker)
 
-1. **Dashboard** → Click "New +" → Select "Background Worker"
+The worker is deployed as a **Background Worker** using your existing `apps/worker/Dockerfile`.
+
+### 5.1 Create Background Worker
+
+1. **Dashboard** → Click "New +" → Select **"Background Worker"**
 
 2. **Connect Repository:**
-   - Same repository: `assignment-job-processing-platform`
+   - Select your GitHub repository
+   - Repository: `assignment-job-processing-platform` (same as API)
+   - You can deploy multiple services from the same repository!
 
 3. **Configure Worker:**
    ```
    Name: asyncflow-worker
-   Region: Same as others
+   Region: Same as database/API (for lower latency)
    Branch: main
-   Root Directory: (leave empty)
+   Root Directory: (leave empty - uses repo root)
    Runtime: Docker
    ```
 
-4. **Docker Configuration:**
+### 5.2 Docker Configuration
+
+Render will automatically detect your Dockerfile. Configure:
+
+```
+Dockerfile Path: apps/worker/Dockerfile
+Docker Context: . (project root)
+Docker Build Context Directory: . (project root)
+```
+
+**Important:** 
+- ✅ Leave **Build Command** blank (Docker handles the build)
+- ✅ Leave **Start Command** blank (Dockerfile CMD is used)
+- ✅ Render uses your `apps/worker/Dockerfile` which already has all build steps
+
+### 5.3 Select Instance Type
+
+**Instance Type:** Select **Free** 
+- 512 MB RAM
+- Shared CPU
+- ⚠️ Limited to 400 hours/month on free tier
+- Background workers don't auto-sleep (they run continuously)
+
+### 5.4 Add Environment Variables
+
+Click **"Add Environment Variable"** and add these:
+
+```bash
+# Same as API service
+NODE_ENV=production
+
+# Database (use Internal Database URL from Step 2)
+DATABASE_URL=postgresql://asyncflow:XXXX@dpg-XXXX.render.com/asyncflow
+
+# Redis (Upstash)
+REDIS_HOST=perfect-unicorn-12345.upstash.io
+REDIS_PORT=6379
+REDIS_PASSWORD=your-upstash-password-here
+REDIS_TLS=true
+
+# Worker-specific
+WORKER_ID=worker-render-1
+QUEUE_NAME=asyncflow-jobs
+QUEUE_CONCURRENCY=3
+QUEUE_MAX_ATTEMPTS=3
+
+# Optional worker settings
+WORKER_HEARTBEAT_INTERVAL=30000
+WORKER_GRACEFUL_SHUTDOWN_TIMEOUT=30000
+
+# Logging
+LOG_LEVEL=info
+LOG_PRETTY=false
+
+# Retry strategy
+RETRY_STRATEGY=exponential
+RETRY_BASE_DELAY=1000
+RETRY_MAX_DELAY=60000
+RETRY_MULTIPLIER=2
+```
+
+**Pro Tip:** You can copy most variables from the API service to maintain consistency.
+
+### 5.5 Deploy
+
+1. **Click "Create Background Worker"**
+2. Render will:
+   - Clone your repository
+   - Build the Docker image using `apps/worker/Dockerfile`
+   - Start the container
+   - Stream logs to dashboard
+
+3. **Wait for deployment** (~5-10 minutes first time)
+
+### 5.6 Verify Worker is Running
+
+1. Go to your worker service in Render dashboard
+2. Click **"Logs"** tab
+3. You should see:
    ```
-   Dockerfile Path: apps/worker/Dockerfile
-   Docker Context: .
-   Build Command: (leave blank - Docker handles build)
-   Start Command: (leave blank - Dockerfile CMD handles start)
+   Worker started successfully
+   Connected to Redis
+   Connected to database
+   Listening for jobs on queue: asyncflow-jobs
+   Worker ID: worker-render-1
    ```
 
-5. **Instance Type:** Select **Free**
+### 5.7 Deploy Multiple Workers (Optional)
 
-6. **Environment Variables:**
-   
-   Copy the SAME environment variables from API, plus:
-   ```bash
-   WORKER_ID=worker-render-1
-   WORKER_HEARTBEAT_INTERVAL=30000
-   WORKER_GRACEFUL_SHUTDOWN_TIMEOUT=30000
-   ```
+To scale horizontally, create additional worker services:
 
-7. **Click "Create Background Worker"**
+1. Repeat steps 5.1-5.5
+2. Use different names: `asyncflow-worker-2`, `asyncflow-worker-3`
+3. Set unique `WORKER_ID` for each: `worker-render-2`, `worker-render-3`
+4. All workers share the same Redis queue and PostgreSQL database
+5. BullMQ handles distributed locking automatically
 
-8. **Wait for deployment** (~5 minutes)
+**Note:** Each additional worker counts toward your 400 free hours/month limit.
 
 ## Step 6: Run Database Migration
 

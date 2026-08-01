@@ -48,5 +48,5 @@ COPY packages/database/prisma ./packages/database/prisma
 # Expose port
 EXPOSE 3000
 
-# Run migrations and start server
-CMD ["sh", "-c", "cd packages/database && npx prisma migrate deploy && cd ../.. && node apps/api/dist/main.js"]
+# Start server (migrations should be run separately as a one-off job)
+CMD ["node", "apps/api/dist/main.js"]
