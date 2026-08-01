@@ -37,6 +37,9 @@ class WorkerApp {
       await redis.ping();
       logger.info('Redis connected');
 
+      // Separate connection for BullMQ (no commandTimeout - blocking commands need it)
+      const bullMQRedis = RedisFactory.createForBullMQ(redisConfig);
+
       // Initialize components
       const jobRepository = new PrismaJobRepository(prisma);
       const metrics = new PrometheusMetricsService();
@@ -56,7 +59,7 @@ class WorkerApp {
         logger,
         metrics,
         retryStrategy,
-        redis,
+        bullMQRedis,
       );
 
       await this.processor.start();
