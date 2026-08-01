@@ -4,7 +4,8 @@ A production-grade asynchronous job processing platform built with clean archite
 
 **Live API:** https://assignment-job-processing-platform.onrender.com  
 **Swagger UI:** https://assignment-job-processing-platform.onrender.com/api/docs  
-**Health Check:** https://assignment-job-processing-platform.onrender.com/api/v1/health
+**Health Check:** https://assignment-job-processing-platform.onrender.com/api/v1/health  
+**Dashboard:** https://asyncflow-dashboard.vercel.app *(deploy separately — see below)*
 
 > **Cold start notice:** The API and Worker run on Render's free tier and may take **30–60 seconds** to wake up after inactivity. If the first request times out, wait a moment and retry. Upstash Redis on the free tier also has an occasional ~1s cold connection latency on first use.
 
@@ -169,7 +170,18 @@ docker-compose up
 
 ---
 
-## Design Decisions
+## Dashboard (Vercel)
+
+The dashboard is a Next.js app in `apps/dashboard`. Deploy it on Vercel:
+
+1. Go to [vercel.com](https://vercel.com) → New Project → Import this repo
+2. Set **Root Directory** to `apps/dashboard`
+3. Add env var: `NEXT_PUBLIC_API_URL=https://assignment-job-processing-platform.onrender.com/api/v1`
+4. Deploy
+
+Features: live job table with status filter, health indicators, queue pause/resume, dead letter view, auto-refresh every 10s.
+
+---
 
 - **BullMQ over custom queue** — mature, Redis-backed, handles retries/delays/priority natively with at-least-once delivery guarantees
 - **Clean Architecture** — business logic in domain layer, independent of NestJS/Prisma/BullMQ. Each layer only depends inward
