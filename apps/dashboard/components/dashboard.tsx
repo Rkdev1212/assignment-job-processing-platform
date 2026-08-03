@@ -126,7 +126,7 @@ export function Dashboard({ initialHealth, initialJobs, initialDeadLetter }: Pro
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant={isHealthy ? 'default' : apiDown ? 'outline' : 'destructive'} className="text-xs px-2 py-1">
-            {apiDown ? '○ Starting…' : isHealthy ? '● Healthy' : '● Degraded'}
+            {apiDown ? '○ Starting…' : isHealthy ? '● Healthy' : '● Unhealthy'}
           </Badge>
           <Button variant="outline" size="sm" onClick={() => refresh()} disabled={loading} className="h-8 text-xs">
             {loading ? 'Refreshing…' : '↺ Refresh'}
@@ -153,9 +153,9 @@ export function Dashboard({ initialHealth, initialJobs, initialDeadLetter }: Pro
           <CardContent className="px-4 pb-4 space-y-2">
             {health ? (
               <>
-                <HealthRow label="Database" status={health.checks.database.status} />
-                <HealthRow label="Redis" status={health.checks.redis.status} />
-                <HealthRow label="Queue" status={health.checks.queue.status} />
+                <HealthRow label="Database" status={health.checks.database.status} error={health.checks.database.error} />
+                <HealthRow label="Redis" status={health.checks.redis.status} error={health.checks.redis.error} />
+                <HealthRow label="Queue" status={health.checks.queue.status} error={health.checks.queue.error} />
                 <div className="grid grid-cols-2 gap-x-4 pt-1">
                   <div className="text-xs text-muted-foreground">Response: <span className="text-foreground">{health.responseTime}</span></div>
                   <div className="text-xs text-muted-foreground">Uptime: <span className="text-foreground">{Math.round(health.uptime / 60)}m</span></div>
@@ -289,13 +289,21 @@ function StatCard({ label, value, color, loading }: { label: string; value: numb
   );
 }
 
-function HealthRow({ label, status }: { label: string; status: string }) {
+function HealthRow({ label, status, error }: { label: string; status: string; error?: string }) {
+  const isHealthy = status === 'healthy';
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-xs sm:text-sm text-muted-foreground">{label}</span>
-      <Badge variant={status === 'healthy' ? 'default' : 'destructive'} className="text-xs">
-        {status}
-      </Badge>
+    <div className="space-y-0.5">
+      <div className="flex items-center justify-between">
+        <span className="text-xs sm:text-sm text-muted-foreground">{label}</span>
+        <Badge variant={isHealthy ? 'default' : 'destructive'} className="text-xs">
+          {status}
+        </Badge>
+      </div>
+      {!isHealthy && error && (
+        <p className="text-xs text-red-400 leading-snug pl-1 break-words">
+          {error.length > 120 ? error.slice(0, 120) + '…' : error}
+        </p>
+      )}
     </div>
   );
 }

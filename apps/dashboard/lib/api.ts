@@ -42,10 +42,11 @@ export interface HealthCheck {
   timestamp: string;
   responseTime: string;
   uptime: number;
+  memory?: { used: number; total: number };
   checks: {
-    database: { status: string };
-    redis: { status: string };
-    queue: { status: string; isPaused: boolean; waiting: number; active: number };
+    database: { status: string; error?: string };
+    redis: { status: string; error?: string };
+    queue: { status: string; error?: string; isPaused: boolean; waiting: number; active: number };
   };
 }
 
