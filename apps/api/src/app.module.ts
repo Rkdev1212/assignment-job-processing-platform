@@ -69,11 +69,14 @@ import { LOGGER_TOKEN, METRICS_COLLECTOR_TOKEN, QUEUE_PUBLISHER_TOKEN, JOB_REPOS
     // Database
     PrismaService,
 
-    // Redis
+    // Redis — create lazily, errors handled at request time
     {
       provide: 'Redis',
       useFactory: (config: ConfigService) => {
-        return RedisFactory.create(config.redis);
+        const redis = RedisFactory.create(config.redis);
+        // Suppress unhandled error events — connection failures surface via health check
+        redis.on('error', () => {});
+        return redis;
       },
       inject: [ConfigService],
     },
